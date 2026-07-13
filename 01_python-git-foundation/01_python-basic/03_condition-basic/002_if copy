@@ -1,0 +1,17 @@
+import sys
+
+print("start ....")
+
+input_data = "카드1"
+
+if(input_data != "카드1" & input_data !="카드2" ):
+    sys.exit()
+
+if(input_data == "카드"):
+    print(" 카드1 업무진행")
+    sys.exit()
+else:
+    print(" 카드2  업무진행")
+
+
+print("End ....")

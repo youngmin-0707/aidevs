@@ -26,6 +26,12 @@ submissions/assignment01_profile.py
 
 ```text
 이름을 입력하세요: Jean
+print("이름:", user_name, "입니다.")
+print("나이:", user_age)
+print("관심 기술을 입력하세요:", "입니다.")
+print("하루 3.5시간 학습할 수 있습니다.)
+
+
 나이를 입력하세요: 25
 관심 기술을 입력하세요: FastAPI
 하루 학습 가능 시간을 입력하세요: 3.5

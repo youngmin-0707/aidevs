@@ -12,7 +12,7 @@ set을 사용할 수 있습니다.
 """
 
 # 중괄호 { }를 사용해 set을 만들 수 있습니다.
-tags = {"python", "fastapi", "python", "supabase"}
+tags = {"python", "fastapi", "python", "supabase","python "}
 
 print("태그 목록:", tags)
 print("자료형:", type(tags))
@@ -24,6 +24,7 @@ print("태그 개수:", len(tags))
 tags.add("streamlit")
 print("추가 후:", tags)
 
+
 # discard()는 값을 제거합니다.
 # 값이 없어도 오류가 나지 않습니다.
 tags.discard("fastapi")
@@ -31,6 +32,9 @@ print("삭제 후:", tags)
 
 # in을 사용해 특정 값이 있는지 확인할 수 있습니다.
 print("python 태그가 있나요?", "python" in tags)
+
+if "fastapi" in tags:
+    print("fastapi 태그가 있습니다.")
 
 # set은 집합 연산을 할 수 있습니다.
 backend_tags = {"python", "fastapi", "supabase"}

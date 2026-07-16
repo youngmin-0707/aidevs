@@ -13,6 +13,11 @@ list는 여러 값을 순서대로 저장하는 자료구조입니다.
 
 # 대괄호 [ ]를 사용해 list를 만듭니다.
 todos = ["Python 설치", "변수 연습", "조건문 연습"]
+todos : list[str] = ["Python 설치", "변수 연습", "조건문 연습"]
+
+temp = [1,1.2,True, "문자열", [1,2,3]]
+temp : list[object] = [1,1.2,True, "문자열", [1,2,3]]
+
 
 print("처음 할 일 목록:", todos)
 print("자료형:", type(todos))
@@ -21,19 +26,23 @@ print("자료형:", type(todos))
 todos.append("반복문 연습")
 print("append 후:", todos)
 
+todos.insert(-1, "1")  # insert(index, value) : index 위치에 value를 추가
+print("insert 후:", todos)
+
 # list는 순서가 있으므로 번호(index)로 값을 꺼낼 수 있습니다.
 # Python의 index는 0부터 시작합니다.
 print("첫 번째 할 일:", todos[0])
 print("두 번째 할 일:", todos[1])
 
+
 # list의 값은 수정할 수 있습니다.
 todos[1] = "자료형 연습"
-print("수정 후:", todos)
+todos[1] ="xxxxxx"
 
-# pop()은 마지막 값을 꺼내면서 list에서 제거합니다.
-last_todo = todos.pop()
-print("꺼낸 값:", last_todo)
-print("pop 후:", todos)
+print("수정 후:", todos)
+num = todos.index("1")
+
+
 
 # len()은 list 안에 들어 있는 값의 개수를 알려줍니다.
 print("할 일 개수:", len(todos))
@@ -45,5 +54,5 @@ for todo in todos:
 
 # enumerate()를 사용하면 번호와 값을 함께 꺼낼 수 있습니다.
 print("\n[번호가 있는 할 일 목록]")
-for index, todo in enumerate(todos, start=1):
+for index, todo in enumerate(todos, start=10):
     print(index, todo)

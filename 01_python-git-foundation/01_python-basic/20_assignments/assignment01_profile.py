@@ -1,6 +1,10 @@
 print("Start")
 name: str = input("이름 입력?")
 age:int = int(input("나이 입력?"))
-print(f"이름{name} 나이{age-10}")
+print(f"이름:{name} 나이:{age-10}")
+interest_skill: str = input("관심기술을 입력하세요:")
+print(f"관심기술:{interest_skill}")
+learning_time: int = int(input("하루 학습 시간을 입력하세요:"))
+print(f"하루 {learning_time}시간 이상 학습중입니다.")
 
 print("End")

@@ -7,12 +7,24 @@ return은 값을 다음 계산이나 다른 함수에서 다시 사용할 수 �
 """
 
 
-def add(a, b):
+def add(a: float, b: float) -> float:
     result = a + b
     return result
 
 
-def make_greeting(name):
+
+def divide(a: float,b: float)->float:
+    result = None
+    if b == 0:
+        result = None
+    return None
+
+divide_result = divide(10, 0)
+print("나누기 결과:",divide_result)
+
+
+
+def make_greeting(name:str) -> str:
     message = f"{name}님, 안녕하세요."
     return message
 

@@ -4,7 +4,7 @@ print("start ....")
 
 input_data = "카드1"
 
-if(input_data != "카드1" & input_data !="카드2" ):
+if(input_data != "카드1" and input_data != "카드2"):
     sys.exit()
 
 if(input_data == "카드"):

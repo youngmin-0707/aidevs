@@ -29,7 +29,10 @@ while True:
         break
     else:
         print("잘못된 메뉴를 선택하셨습니다.") 
-print("end ....")
+
+continue
+
+
 
 
 

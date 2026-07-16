@@ -8,6 +8,7 @@ POST 데이터 생성
 PUT 전체 수정
 PATCH 일부 수정
 DELETE 삭제
+
 ```
 
 ## URL 구성

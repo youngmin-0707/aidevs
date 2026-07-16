@@ -1,0 +1,16 @@
+{
+  "include": [
+    "01_python-git-foundation",
+    "02_supabase-ai-backend",
+    "03_supabase-ai-frontend",
+    "04_supabase-ai-mini-project",
+    "05_llm-agent-orchestration",
+    "06_llm-agent-mini-project",
+    "07_multi-agent-service-ops",
+    "08_multi-agent-service-mini-project"
+  ],
+  "exclude": ["**/node_modules", "**/__pycache__", "**/.*"],
+  "typeCheckingMode": "basic",
+  "pythonVersion": "3.12",
+  "pythonPlatform": "Windows"
+}

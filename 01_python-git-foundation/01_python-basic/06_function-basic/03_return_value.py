@@ -49,3 +49,10 @@ def check_number(number):
 
 print(check_number(-3))
 print(check_number(10))
+
+
+def check_number(number):
+    if number < 0:
+        return "음수입니다."
+    if number == 0:
+        return None 

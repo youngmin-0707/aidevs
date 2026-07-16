@@ -2,7 +2,7 @@
 
 이 파일은 첫 FastAPI 코드 구조를 읽어보기 위한 학습용 파일입니다.
 파일명에 번호와 하이픈(-)이 들어 있지만, 수업에서는 uvicorn 실행 형태를 일관되게 확인합니다.
-
+uvicorn 01_hello-fastapi:app --reload
 이 파일을 실행할 때는 `uvicorn 01_hello-fastapi:app --reload` 명령을 사용합니다.
 만약 실행 환경에서 해당 명령이 오류가 나면 `python -m uvicorn 01_hello-fastapi:app --reload`로 실행합니다.
 기본 프로젝트 실행 흐름은 같은 폴더의 `main.py`로도 비교해 확인합니다.
@@ -41,7 +41,7 @@ def read_root():
 
     # FastAPI는 Python dict를 자동으로 JSON 응답으로 변환합니다.
     return {
-        "message": "Hello, FastAPI",
+        "message": "Hello, FastAPI,Im hungry",
         "next": "Open /docs to see Swagger UI",
     }
 
@@ -50,4 +50,18 @@ def read_root():
 def health_check():
     """서버가 살아 있는지 확인하는 가장 기본적인 점검용 API입니다."""
 
-    return {"status": "ok"}
+    return {"status": "okbary"}
+
+
+@app.get("/login")
+def health_check():
+    """서버가 살아 있는지 확인하는 가장 기본적인 점검용 API입니다."""
+
+    return {"status": "login oky"}
+
+
+@app.get("/logout")
+def health_check():
+    """서버가 살아 있는지 확인하는 가장 기본적인 점검용 API입니다."""
+
+    return {"status": "logout ok"}

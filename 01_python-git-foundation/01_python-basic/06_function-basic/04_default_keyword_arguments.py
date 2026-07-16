@@ -9,7 +9,7 @@
 """
 
 
-def greet(name, language="ko"):
+def greet(name:str, language:str ="ko")->str:
     if language == "ko":
         return f"{name}님, 안녕하세요."
 
@@ -26,6 +26,10 @@ print(greet("Jean", "en"))
 print(greet(name="Mina", language="ko"))
 print(greet(language="en", name="Mina"))
 
+#함수명: creater_user
+# 매개변수: name, role, active
+# 기본값: role="member", active=True
+# 사용자 정보를 넣으면 dict형태로 반환합니다.
 
 def create_user(name, role="member", active=True):
     return {

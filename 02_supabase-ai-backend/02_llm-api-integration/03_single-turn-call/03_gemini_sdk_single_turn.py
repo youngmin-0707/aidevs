@@ -78,7 +78,7 @@ def print_gemini_error(error: Exception, model: str) -> None:
 
 def main() -> None:
     api_key = os.getenv("GEMINI_API_KEY")
-    model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite")
+    model = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
 
     if not is_real_api_key(api_key):
         print("GEMINI_API_KEY가 없거나 placeholder 값입니다.")
@@ -98,8 +98,9 @@ def main() -> None:
     client = genai.Client(api_key=api_key)
 
     prompt = (
-        "참고 메모: Pydantic은 요청 데이터를 검증하고 잘못된 요청을 422 오류로 처리한다.\n"
-        "질문: FastAPI에서 Pydantic을 왜 사용하나요? 초보자에게 설명해 주세요."
+        # "참고 메모: Pydantic은 요청 데이터를 검증하고 잘못된 요청을 422 오류로 처리한다.\n"
+        # "질문: FastAPI에서 Pydantic을 왜 사용하나요? 초보자에게 설명해 주세요."
+        "질문:1+1= "
     )
 
     try:

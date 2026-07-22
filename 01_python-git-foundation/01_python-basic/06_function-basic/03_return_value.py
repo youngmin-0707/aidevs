@@ -17,7 +17,7 @@ def divide(a: float,b: float)->float:
     result = None
     if b == 0:
         result = None
-    return None
+    return result
 
 divide_result = divide(10, 0)
 print("나누기 결과:",divide_result)

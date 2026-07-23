@@ -1,3 +1,4 @@
+# 학습 포인트: API 요청과 응답 흐름을 순서대로 보여 주는 참고 예제입니다.
 # 바이브 코딩 프롬프트 예시:
 # 이 FastAPI cached AI answer 예제의 endpoint를 확인해서 tests/test_api_flow.py를 만들어줘.
 # 조건:
@@ -22,19 +23,26 @@ cache_service 함수를 monkeypatch로 바꾼 뒤,
 Gemini 답변 조회와 캐시 삭제 endpoint의 응답 흐름만 확인합니다.
 """
 
+# 학습 포인트: FastAPI 앱과 요청 처리에 필요한 기능을 가져옵니다.
 from fastapi.testclient import TestClient
 
+# 학습 포인트: 현재 프로젝트의 다른 계층에 정의된 기능을 가져와 연결합니다.
 from app.main import app
+# 학습 포인트: 현재 프로젝트의 다른 계층에 정의된 기능을 가져와 연결합니다.
 from app.routers import cache_router
+# 학습 포인트: 현재 프로젝트의 다른 계층에 정의된 기능을 가져와 연결합니다.
 from app.schemas.cache_schema import CachedAnswerResponse
 
 
+# 학습 포인트: client 변수에 외부 서비스 클라이언트를 저장합니다.
 client = TestClient(app)
 
 
+# 학습 포인트: test_get_answer_and_clear_cache_flow 함수를 정의합니다. 입력값을 받아 정해진 작업을 처리합니다.
 def test_get_answer_and_clear_cache_flow(monkeypatch) -> None:
     """Gemini 답변을 조회하고 같은 질문의 캐시를 삭제하는 흐름을 확인합니다."""
 
+    # 학습 포인트: 함수를 호출해 필요한 작업을 실행합니다.
     monkeypatch.setattr(
         cache_router.cache_service,
         "get_or_create_answer",
@@ -45,24 +53,35 @@ def test_get_answer_and_clear_cache_flow(monkeypatch) -> None:
             ttl_seconds=60,
         ),
     )
+    # 학습 포인트: 함수를 호출해 필요한 작업을 실행합니다.
     monkeypatch.setattr(cache_router.cache_service, "clear_answer", lambda question: 1)
 
+    # 학습 포인트: answer_response 변수에 외부 서비스가 돌려준 응답을 저장합니다.
     answer_response = client.get("/ai/answer", params={"question": "Redis 캐시는 언제 쓰나요?"})
+    # 학습 포인트: 실제 결과가 예상값과 같은지 확인하고 다르면 테스트를 실패시킵니다.
     assert answer_response.status_code == 200
+    # 학습 포인트: 실제 결과가 예상값과 같은지 확인하고 다르면 테스트를 실패시킵니다.
     assert answer_response.json()["cached"] is False
+    # 학습 포인트: 실제 결과가 예상값과 같은지 확인하고 다르면 테스트를 실패시킵니다.
     assert answer_response.json()["ttl_seconds"] == 60
 
+    # 학습 포인트: clear_response 변수에 외부 서비스가 돌려준 응답을 저장합니다.
     clear_response = client.delete(
         "/ai/answer-cache",
         params={"question": "Redis 캐시는 언제 쓰나요?"},
     )
+    # 학습 포인트: 실제 결과가 예상값과 같은지 확인하고 다르면 테스트를 실패시킵니다.
     assert clear_response.status_code == 200
+    # 학습 포인트: 실제 결과가 예상값과 같은지 확인하고 다르면 테스트를 실패시킵니다.
     assert clear_response.json()["deleted_count"] == 1
 
 
+# 학습 포인트: test_answer_requires_question 함수를 정의합니다. 입력값을 받아 정해진 작업을 처리합니다.
 def test_answer_requires_question() -> None:
     """question query string이 없으면 FastAPI가 422 에러를 반환하는지 확인합니다."""
 
+    # 학습 포인트: response 변수에 외부 서비스가 돌려준 응답을 저장합니다.
     response = client.get("/ai/answer")
 
+    # 학습 포인트: 실제 결과가 예상값과 같은지 확인하고 다르면 테스트를 실패시킵니다.
     assert response.status_code == 422

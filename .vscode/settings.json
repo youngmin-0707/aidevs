@@ -26,5 +26,17 @@
       ]
     }
   },
-  "terminal.integrated.defaultProfile.windows": "PowerShell (venv)"
+  "terminal.integrated.defaultProfile.windows": "PowerShell (venv)",
+  "python-envs.pythonProjects": [
+    {
+      "path": "03_supabase-ai-frontend",
+      "envManager": "ms-python.python:venv",
+      "packageManager": "ms-python.python:pip"
+    },
+    {
+      "path": "03_supabase-ai-frontend/01_streamlit-basic/20_assignments",
+      "envManager": "ms-python.python:venv",
+      "packageManager": "ms-python.python:pip"
+    }
+  ]
 }

@@ -1,3 +1,4 @@
+# 학습 포인트: API 요청과 응답 흐름을 순서대로 보여 주는 참고 예제입니다.
 # 바이브 코딩 프롬프트 예시:
 # 이 FastAPI auth/jwt/profile 예제의 endpoint를 확인해서 tests/test_api_flow.py를 만들어줘.
 # 조건:
@@ -24,34 +25,51 @@ r"""04_auth-jwt-profile-api 핵심 API 흐름 테스트입니다.
 Auth/Profile endpoint가 어떻게 연결되는지 확인합니다.
 """
 
+# 학습 포인트: FastAPI 앱과 요청 처리에 필요한 기능을 가져옵니다.
 from fastapi.testclient import TestClient
 
+# 학습 포인트: 현재 프로젝트의 다른 계층에 정의된 기능을 가져와 연결합니다.
 from app.main import app
+# 학습 포인트: 현재 프로젝트의 다른 계층에 정의된 기능을 가져와 연결합니다.
 from app.routers import auth_router, profile_router
+# 학습 포인트: 현재 프로젝트의 다른 계층에 정의된 기능을 가져와 연결합니다.
 from app.schemas.auth_schema import AuthResponse, UserPublic
+# 학습 포인트: 현재 프로젝트의 다른 계층에 정의된 기능을 가져와 연결합니다.
 from app.schemas.profile_schema import ProfilePublic
+# 학습 포인트: 현재 프로젝트의 다른 계층에 정의된 기능을 가져와 연결합니다.
 from app.services import auth_service
 
 
+# 학습 포인트: client 변수에 외부 서비스 클라이언트를 저장합니다.
 client = TestClient(app)
 
 
+# 학습 포인트: fake_current_user 함수를 정의합니다. 입력값을 받아 정해진 작업을 처리합니다.
 def fake_current_user() -> UserPublic:
     """테스트에서 사용할 가짜 로그인 사용자입니다."""
 
+    # 학습 포인트: 함수를 끝내고 처리 결과를 호출한 곳으로 돌려줍니다.
     return UserPublic(id="user-1", email="student@example.com", access_token="test-token")
 
 
+# 학습 포인트: test_signup_signin_me_and_profile_flow 함수를 정의합니다. 입력값을 받아 정해진 작업을 처리합니다.
 def test_signup_signin_me_and_profile_flow(monkeypatch) -> None:
     """회원가입, 로그인, 내 정보 조회, 프로필 조회/수정 흐름을 확인합니다."""
 
+    # 학습 포인트: user 변수에 오른쪽에서 만든 값을 저장합니다.
     user = UserPublic(id="user-1", email="student@example.com", access_token="test-token")
+    # 학습 포인트: auth_response 변수에 외부 서비스가 돌려준 응답을 저장합니다.
     auth_response = AuthResponse(user=user, access_token="test-token")
+    # 학습 포인트: profile 변수에 오른쪽에서 만든 값을 저장합니다.
     profile = ProfilePublic(id="user-1", display_name="홍길동")
 
+    # 학습 포인트: 함수를 호출해 필요한 작업을 실행합니다.
     monkeypatch.setattr(auth_router.auth_service, "signup", lambda request: user)
+    # 학습 포인트: 함수를 호출해 필요한 작업을 실행합니다.
     monkeypatch.setattr(auth_router.auth_service, "signin", lambda request: auth_response)
+    # 학습 포인트: 함수를 호출해 필요한 작업을 실행합니다.
     monkeypatch.setattr(profile_router.profile_service, "get_profile", lambda access_token: profile)
+    # 학습 포인트: 함수를 호출해 필요한 작업을 실행합니다.
     monkeypatch.setattr(
         profile_router.profile_service,
         "upsert_profile",
@@ -62,45 +80,67 @@ def test_signup_signin_me_and_profile_flow(monkeypatch) -> None:
     )
     app.dependency_overrides[auth_service.get_current_user] = fake_current_user
 
+    # 학습 포인트: 오류가 발생할 수 있는 작업을 안전하게 시도합니다.
     try:
+        # 학습 포인트: signup_response 변수에 외부 서비스가 돌려준 응답을 저장합니다.
         signup_response = client.post(
             "/auth/signup",
             json={"email": "student@example.com", "password": "password123"},
         )
+        # 학습 포인트: 실제 결과가 예상값과 같은지 확인하고 다르면 테스트를 실패시킵니다.
         assert signup_response.status_code == 200
+        # 학습 포인트: 실제 결과가 예상값과 같은지 확인하고 다르면 테스트를 실패시킵니다.
         assert signup_response.json()["id"] == "user-1"
 
+        # 학습 포인트: signin_response 변수에 외부 서비스가 돌려준 응답을 저장합니다.
         signin_response = client.post(
             "/auth/signin",
             json={"email": "student@example.com", "password": "password123"},
         )
+        # 학습 포인트: 실제 결과가 예상값과 같은지 확인하고 다르면 테스트를 실패시킵니다.
         assert signin_response.status_code == 200
+        # 학습 포인트: 실제 결과가 예상값과 같은지 확인하고 다르면 테스트를 실패시킵니다.
         assert signin_response.json()["access_token"] == "test-token"
 
+        # 학습 포인트: me_response 변수에 외부 서비스가 돌려준 응답을 저장합니다.
         me_response = client.get("/me", headers={"Authorization": "Bearer test-token"})
+        # 학습 포인트: 실제 결과가 예상값과 같은지 확인하고 다르면 테스트를 실패시킵니다.
         assert me_response.status_code == 200
+        # 학습 포인트: 실제 결과가 예상값과 같은지 확인하고 다르면 테스트를 실패시킵니다.
         assert me_response.json()["email"] == "student@example.com"
 
+        # 학습 포인트: profile_response 변수에 외부 서비스가 돌려준 응답을 저장합니다.
         profile_response = client.get("/profile", headers={"Authorization": "Bearer test-token"})
+        # 학습 포인트: 실제 결과가 예상값과 같은지 확인하고 다르면 테스트를 실패시킵니다.
         assert profile_response.status_code == 200
+        # 학습 포인트: 실제 결과가 예상값과 같은지 확인하고 다르면 테스트를 실패시킵니다.
         assert profile_response.json()["display_name"] == "홍길동"
 
+        # 학습 포인트: update_response 변수에 외부 서비스가 돌려준 응답을 저장합니다.
         update_response = client.put(
             "/profile",
             headers={"Authorization": "Bearer test-token"},
             json={"display_name": "김코딩"},
         )
+        # 학습 포인트: 실제 결과가 예상값과 같은지 확인하고 다르면 테스트를 실패시킵니다.
         assert update_response.status_code == 200
+        # 학습 포인트: 실제 결과가 예상값과 같은지 확인하고 다르면 테스트를 실패시킵니다.
         assert update_response.json()["display_name"] == "김코딩"
+    # 학습 포인트: 오류 여부와 관계없이 마지막에 반드시 실행합니다.
     finally:
+        # 학습 포인트: 함수를 호출해 필요한 작업을 실행합니다.
         app.dependency_overrides.clear()
 
 
+# 학습 포인트: test_me_requires_bearer_token 함수를 정의합니다. 입력값을 받아 정해진 작업을 처리합니다.
 def test_me_requires_bearer_token() -> None:
     """dependency override가 없을 때 /me는 Bearer token 없이는 401을 반환합니다."""
 
+    # 학습 포인트: 함수를 호출해 필요한 작업을 실행합니다.
     app.dependency_overrides.clear()
 
+    # 학습 포인트: response 변수에 외부 서비스가 돌려준 응답을 저장합니다.
     response = client.get("/me")
 
+    # 학습 포인트: 실제 결과가 예상값과 같은지 확인하고 다르면 테스트를 실패시킵니다.
     assert response.status_code == 401

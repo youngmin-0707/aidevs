@@ -39,8 +39,8 @@ else:
 
     st.caption(f"이미지 경로: {selected_image}")  # 현재 어떤 파일을 출력하는지 작은 설명으로 보여 줍니다.
 
-    # st.image는 이미지 파일 경로, URL, 이미지 객체 등을 화면에 출력할 수 있습니다.
-    # use_container_width=True를 사용하면 이미지가 화면 너비에 맞게 자연스럽게 조절됩니다.
+    # st.image는 이미지 파e를 사용하면 이미지가 화면 너비에 맞게 자연스럽게 조절됩니다일 경로, URL, 이미지 객체 등을 화면에 출력할 수 있습니다.
+    # use_container_width=Tru.
     st.image(
         selected_image,
         caption=f"{selected_name} 파일을 Streamlit 화면에 출력했습니다.",

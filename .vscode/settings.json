@@ -37,6 +37,16 @@
       "path": "03_supabase-ai-frontend/01_streamlit-basic/20_assignments",
       "envManager": "ms-python.python:venv",
       "packageManager": "ms-python.python:pip"
+    },
+    {
+      "path": "03_supabase-ai-frontend/02_streamlit-ui-components",
+      "envManager": "ms-python.python:venv",
+      "packageManager": "ms-python.python:pip"
+    },
+    {
+      "path": "03_supabase-ai-frontend/02_streamlit-ui-components/01_buttons-forms-and-controls",
+      "envManager": "ms-python.python:venv",
+      "packageManager": "ms-python.python:pip"
     }
   ]
 }

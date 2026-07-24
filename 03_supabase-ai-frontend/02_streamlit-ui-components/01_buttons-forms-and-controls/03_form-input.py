@@ -18,7 +18,7 @@ if "profile_name" not in st.session_state:
     st.session_state["profile_name"] = ""
 
 if "profile_role" not in st.session_state:
-    st.session_state["profile_role"] = "AI"
+    st.session_state["profile_role"] = "Backend"
 
 
 with st.form("profile_form"):  # 파일, 화면 영역, 로딩 상태처럼 시작과 종료가 있는 작업 범위를 만듭니다.
@@ -35,8 +35,11 @@ with st.form("profile_form"):  # 파일, 화면 영역, 로딩 상태처럼 시�
         submitted = st.form_submit_button("제출")  # 입력한 값을 확인하는 버튼입니다.
 
     with reset_col:
-        reset = st.form_submit_button("초기화", on_click=reset_profile_form)  # 입력값을 기본값으로 되돌리는 버튼입니다.
-
+        reset = st.form_submit_button("초기화", on_click=reset_profile_form)  
+        # 입력값을 기본값으로 되돌리는 버튼입니다.
+#<화면>
+#----------------------------------------------------------------------------------------
+#<program>
 if reset:  # 초기화 버튼을 눌렀을 때 실행합니다.
     st.info("입력값을 초기화했습니다.")  # 사용자에게 초기화가 완료되었음을 알려줍니다.
 elif submitted:  # 조건식이 True일 때만 아래 들여쓰기 블록을 실행합니다.

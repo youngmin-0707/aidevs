@@ -62,3 +62,4 @@ with st.form("pizza_form"):
 if submit:
     st.subheader(f"당신이 선택한 피자는 {st.session_state.pizza}")
     st.info(f"{input_dow} {input_cheeze} {input_toping}")
+    

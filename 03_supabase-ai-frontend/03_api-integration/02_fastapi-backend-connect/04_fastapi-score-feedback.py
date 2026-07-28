@@ -15,3 +15,4 @@ if st.button("피드백 요청"):  # 버튼을 누른 순간에만 POST 요청�
 
     st.success(result["feedback"])  # 백엔드가 만든 피드백 문장을 화면에 표시합니다.
     st.json(result)  # 전체 JSON 응답도 함께 보여 주어 데이터 구조를 확인합니다.
+    

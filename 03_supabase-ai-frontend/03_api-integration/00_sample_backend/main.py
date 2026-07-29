@@ -118,7 +118,7 @@ def health_check():
 def get_courses():
     """서버에서 목록 데이터를 조회하는 GET API 예제입니다."""
 
-    print_api_running("GET", "/api/courses")
+    # print_api_running("GET", "/api/courses")
 
     # GET 요청은 보통 데이터를 새로 만들지 않고, 서버에 있는 데이터를 조회할 때 사용합니다.
     # Streamlit에서는 requests.get(...)으로 이 API를 호출한 뒤 courses 값을 화면에 출력할 수 있습니다.

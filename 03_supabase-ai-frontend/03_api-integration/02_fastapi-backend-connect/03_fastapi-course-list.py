@@ -6,20 +6,21 @@ API_BASE_URL = "http://127.0.0.1:8000"  # 프론트엔드가 호출할 백엔드
 
 st.title("과정 목록 조회")  # Streamlit 화면의 가장 큰 제목을 표시합니다.
 
-if st.button("과정 목록 불러오기"):  # 버튼을 누른 순간에만 과정 목록 API를 호출합니다.
+# if st.button("과정 목록 불러오기"):  # 버튼을 누른 순간에만 과정 목록 API를 호출합니다.
+with st.spinner("데이터 로딩중"):
     response = httpx.get(f"{API_BASE_URL}/api/courses", timeout=5.0)  # 과정 목록을 조회하는 GET 요청을 보냅니다.
-    data = response.json()  # JSON 응답을 딕셔너리로 변환합니다.
-    courses = data.get("courses")  # courses key가 없을 때를 대비해 기본값으로 빈 리스트를 사용합니다.
+data = response.json()  # JSON 응답을 딕셔너리로 변환합니다.
+courses = data.get("courses")  # courses key가 없을 때를 대비해 기본값으로 빈 리스트를 사용합니다.
 
-    # data = response.json()
-    # count = data["count"]
-    # st.info(f"총개수:{"count"}")
+data = response.json()
+count = data["count"]
+st.info(f"총개수:{"count"}")
 
-    # st.write("과정 목록")  # 아래 출력이 어떤 데이터인지 설명합니다.
-    # for course in courses:  # 과정 목록을 하나씩 꺼내 화면에 표시합니다.
-    #     st.write(f"- {course}")  # 각 과정을 목록처럼 출력합니다.
+# st.write("과정 목록")  # 아래 출력이 어떤 데이터인지 설명합니다.
+# for course in courses:  # 과정 목록을 하나씩 꺼내 화면에 표시합니다.
+#     st.write(f"- {course}")  # 각 과정을 목록처럼 출력합니다.
 
-    course_df = pd.DataFrame(courses)
+course_df = pd.DataFrame(courses)
 
-    st.write("과정목록")
-    st.dataframe(course_df, use_container_width=True)
+st.write("과정목록")
+st.dataframe(course_df, use_container_width=True)

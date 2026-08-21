@@ -52,6 +52,11 @@
       "path": "05_llm-agent-orchestration",
       "envManager": "ms-python.python:system",
       "packageManager": "ms-python.python:pip"
+    },
+    {
+      "path": "05_llm-agent-orchestration/03_tool-use",
+      "envManager": "ms-python.python:venv",
+      "packageManager": "ms-python.python:pip"
     }
   ],
   "python-envs.defaultEnvManager": "ms-python.python:venv"

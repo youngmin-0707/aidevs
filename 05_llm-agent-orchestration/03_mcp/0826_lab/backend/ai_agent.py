@@ -9,11 +9,11 @@ from typing import Any
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
 
-from _stdio_client import connect_to_anniversary_server
-from rag_data import retrieve_documents
+from backend._http_client import connect_to_anniversary_server
+from backend.rag_data import retrieve_documents
 
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[1]
 load_dotenv(ROOT / ".env")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
 INSTRUCTIONS = """

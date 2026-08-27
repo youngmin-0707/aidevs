@@ -1,101 +1,96 @@
-# 기념일 서프라이즈 시나리오 AI 에이전트 실행 방법
+# 기념일 시나리오 프로젝트 실행 방법
 
-## 1. 이 프로젝트가 하는 일
-
-사용자의 기념일, 예산, 상대 성향, 준비 가능 시간을 받아 다음 흐름으로 이벤트 시나리오를 만듭니다.
+## 1. 폴더 구조
 
 ```text
-사용자 질문
-  → RAG 문서 검색
-  → LLM이 필요한 MCP Tool 선택
-  → 기념일·선물·예산·시간 검증
-  → 최종 시나리오 출력
+0826_lab
+├─ backend
+│  ├─ api_server.py       # Swagger REST API, MCP Client
+│  ├─ ai_agent.py         # LLM Agent
+│  ├─ scenario_service.py # 공통 Mock 데이터·계산 로직
+│  └─ rag_data.py         # RAG 문서와 검색 함수
+├─ frontend
+│  └─ app.py              # Streamlit 화면
+└─ mcp_server
+   └─ mcp_server.py       # Streamable HTTP MCP 서버
 ```
 
-프로젝트는 실제 쇼핑몰이나 예약 시스템을 사용하지 않습니다. 선물과 가격은 모두 수업용 Mock 데이터입니다.
-
-## 2. 파일 역할
-
-| 파일 | 역할 |
-| --- | --- |
-| `mcp_server.py` | 날짜 계산, 선물 검색, 예산·시간 검증 Tool을 제공하는 MCP 서버 |
-| `_stdio_client.py` | Python 프로그램과 MCP 서버를 stdio로 연결하는 도우미 |
-| `rag_data.py` | 기념일·성향 가이드 문서와 간단한 RAG 검색 함수 |
-| `ai_agent.py` | LLM, RAG, MCP Tool 결과를 종합해 최종 시나리오를 만드는 프로그램 |
-
-## 3. 최초 1회 준비
-
-PowerShell에서 과정 루트로 이동해 가상환경을 활성화합니다.
+## 2. 최초 1회 준비
 
 ```powershell
 cd C:\aidevs\05_llm-agent-orchestration
 .\.venv\Scripts\Activate.ps1
-```
-
-필요한 패키지를 설치합니다. `mcp`는 현재 `requirements.txt`에 없을 수 있으므로 별도로 설치합니다.
-
-```powershell
 python -m pip install -r requirements.txt
 python -m pip install "mcp>=1.27,<2"
 ```
 
-과정 루트의 `.env` 파일에 OpenAI API 키를 설정합니다.
+## 3. MCP 서버 실행
+
+첫 번째 터미널에서 프로젝트 루트로 이동한 뒤 실행합니다.
+
+```powershell
+cd C:\aidevs\05_llm-agent-orchestration\03_mcp\0826_lab
+py -m mcp_server.mcp_server
+```
+
+MCP endpoint는 `http://192.100.200.198:8000/mcp`입니다.
+
+팀원 접속을 위해 프로젝트 `.env`의 `TEAM_MCP_HOST`는 이미 `0.0.0.0`으로 설정되어 있습니다.
+현재 서버 담당자 주소는 `http://192.100.200.198:8000/mcp`입니다.
+
+## 4. Swagger FastAPI 실행
+
+두 번째 터미널에서 MCP 서버 URL을 설정하고 FastAPI를 실행합니다.
+
+```powershell
+cd C:\aidevs\05_llm-agent-orchestration\03_mcp\0826_lab
+py -m uvicorn backend.api_server:app --reload --host 0.0.0.0 --port 8001
+```
+
+브라우저에서 Swagger를 엽니다.
+
+```text
+http://127.0.0.1:8001/docs
+```
+
+Swagger 요청은 FastAPI가 MCP Tool 호출로 전달합니다. 따라서 Swagger에서 테스트하면
+첫 번째 터미널의 MCP 서버 로그에도 Tool 호출·완료 내용이 표시됩니다.
+
+## 5. Streamlit 화면 실행
+
+세 번째 터미널에서 실행합니다.
+
+```powershell
+cd C:\aidevs\05_llm-agent-orchestration\03_mcp\0826_lab
+py -m streamlit run .\frontend\app.py --server.address 0.0.0.0
+```
+
+브라우저에서 기본 Streamlit 주소 `http://localhost:8501`을 엽니다.
+
+## 6. AI Agent 실행
+
+`.env` 파일에 OpenAI 설정과 MCP URL을 넣습니다.
 
 ```env
 OPENAI_API_KEY=발급받은_API_KEY
 OPENAI_MODEL=gpt-4.1-mini
+TEAM_MCP_URL=http://192.100.200.198:8000/mcp
 ```
 
-`.env` 파일이 없다면 `.env.example`을 참고해 새로 만듭니다. API 키는 Git에 올리면 안 됩니다.
-
-## 4. 실행
-
-`0826_lab` 폴더로 이동한 후, AI 에이전트만 실행합니다.
+네 번째 터미널에서 실행합니다.
 
 ```powershell
 cd C:\aidevs\05_llm-agent-orchestration\03_mcp\0826_lab
-python .\ai_agent.py
+py -m backend.ai_agent
 ```
 
-`ai_agent.py`가 MCP 서버를 자식 프로세스로 자동 실행합니다. 따라서 보통은 `mcp_server.py`를 별도 터미널에서 직접 실행하지 않습니다.
+## 7. 팀 공유 시 포트
 
-정상 실행되면 별도 라이브러리 없이 `print()`로 만든 텍스트 화면에서 아래 내용을 확인할 수 있습니다.
+| 서비스 | 기본 포트 | 팀원 접속 주소 예시 |
+| --- | ---: | --- |
+| MCP 서버 | 8000 | `http://192.100.200.198:8000/mcp` |
+| Swagger API | 8001 | `http://192.100.200.198:8001/docs` |
+| Streamlit | 8501 | `http://192.100.200.198:8501` |
 
-- 사용자 요청과 AI 추천 시나리오
-- 예산과 시간 검증 결과
-- RAG 참고 문서 제목
-- LLM이 선택해 호출한 MCP Tool 목록
-
-## 5. 다른 질문으로 실행하기
-
-`ai_agent.py`의 `main()` 함수에 있는 `question` 문장을 바꾼 뒤 다시 실행합니다.
-
-```python
-question = "생일을 맞아 친구에게 줄 작은 선물을 추천해 주세요. 예산은 5만 원이고 준비 시간은 2시간입니다."
-```
-
-LLM이 정확한 날짜·가격·시간 검증이 필요하다고 판단하면 MCP Tool을 호출합니다. Tool 호출 내역은 `trace`에서 볼 수 있습니다.
-
-## 6. 문법 검사와 문제 해결
-
-실행 전에 문법만 검사하려면 다음 명령을 사용합니다.
-
-```powershell
-python -m py_compile .\mcp_server.py .\rag_data.py .\ai_agent.py .\_stdio_client.py
-```
-
-### `ModuleNotFoundError: No module named 'mcp'`
-
-가상환경이 활성화된 상태인지 확인한 뒤 아래 명령을 실행합니다.
-
-```powershell
-python -m pip install "mcp>=1.27,<2"
-```
-
-### `OPENAI_API_KEY가 필요합니다`
-
-과정 루트 `C:\aidevs\05_llm-agent-orchestration\.env` 파일에 API 키가 있는지 확인합니다.
-
-### `McpError: Connection closed`
-
-`mcp_server.py`의 문법 오류 또는 가상환경 문제일 수 있습니다. 먼저 6장의 문법 검사 명령을 실행합니다. 서버 시작 메시지는 `stderr`로 출력되어야 하며, 일반 `print()`를 stdout에 추가하면 stdio MCP 통신이 깨질 수 있습니다.
+다른 PC에서 Swagger 또는 Streamlit을 보게 하려면 각각 `--host 0.0.0.0`,
+`--server.address 0.0.0.0`으로 실행하고 Windows 방화벽에서 해당 TCP 포트를 허용합니다.

@@ -57,6 +57,37 @@
       "path": "03_supabase-ai-frontend/02_streamlit-ui-components/01_buttons-forms-and-controls",
       "envManager": "ms-python.python:venv",
       "packageManager": "ms-python.python:pip"
+    },
+    {
+      "path": "05_llm-agent-orchestration",
+      "envManager": "ms-python.python:system",
+      "packageManager": "ms-python.python:pip"
+    },
+    {
+      "path": "05_llm-agent-orchestration/03_tool-use",
+      "envManager": "ms-python.python:venv",
+      "packageManager": "ms-python.python:pip"
+    },
+    {
+      "path": "05_llm-agent-orchestration/03_mcp",
+      "envManager": "ms-python.python:venv",
+      "packageManager": "ms-python.python:pip"
+    },
+    {
+      "path": "05_llm-agent-orchestration/03_mcp/10_labs",
+      "envManager": "ms-python.python:venv",
+      "packageManager": "ms-python.python:pip"
+    },
+    {
+      "path": "05_llm-agent-orchestration/05_memory",
+      "envManager": "ms-python.python:venv",
+      "packageManager": "ms-python.python:pip"
+    },
+    {
+      "path": "05_llm-agent-orchestration/06_agent-workflow",
+      "envManager": "ms-python.python:venv",
+      "packageManager": "ms-python.python:pip"
     }
-  ]
+  ],
+  "python-envs.defaultEnvManager": "ms-python.python:venv"
 }

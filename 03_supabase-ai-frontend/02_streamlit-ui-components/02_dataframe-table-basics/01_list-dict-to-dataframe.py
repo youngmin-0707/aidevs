@@ -6,7 +6,7 @@ st.title("DataFrame 만들기")  # Streamlit 화면의 가장 큰 제목을 표�
 students = [  # 계산 결과나 입력값을 이후 코드에서 다시 쓰기 위해 변수에 저장합니다.
     {"name": "Kim", "course": "Streamlit", "score": 85},  # 이 줄은 예제의 핵심 동작을 단계별로 보여주기 위한 코드입니다.
     {"name": "Lee", "course": "FastAPI", "score": 78},  # 이 줄은 예제의 핵심 동작을 단계별로 보여주기 위한 코드입니다.
-    {"name": "Park", "course": "Streamlit", "score": 92},  # 이 줄은 예제의 핵심 동작을 단계별로 보여주기 위한 코드입니다.
+    {"name": "Park", "course": "Streamlit", "score": 92}, 
 ]
 
 df = pd.DataFrame(students)  # 딕셔너리 데이터를 행과 열을 가진 DataFrame 표 구조로 변환합니다.

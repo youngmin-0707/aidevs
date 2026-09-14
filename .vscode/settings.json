@@ -82,6 +82,11 @@
       "path": "05_llm-agent-orchestration/07_human-approval-and-safety",
       "envManager": "ms-python.python:venv",
       "packageManager": "ms-python.python:pip"
+    },
+    {
+      "path": "07_multi-agent-service-ops",
+      "envManager": "ms-python.python:venv",
+      "packageManager": "ms-python.python:pip"
     }
   ],
   "python-envs.defaultEnvManager": "ms-python.python:venv"

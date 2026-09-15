@@ -87,6 +87,16 @@
       "path": "07_multi-agent-service-ops",
       "envManager": "ms-python.python:venv",
       "packageManager": "ms-python.python:pip"
+    },
+    {
+      "path": "07_multi-agent-service-ops/aio-02-p1-team1",
+      "envManager": "ms-python.python:venv",
+      "packageManager": "ms-python.python:pip"
+    },
+    {
+      "path": "07_multi-agent-service-ops/00_runtime-and-deployment/01_simple-multi-llm-compose",
+      "envManager": "ms-python.python:venv",
+      "packageManager": "ms-python.python:pip"
     }
   ],
   "python-envs.defaultEnvManager": "ms-python.python:venv"

@@ -4,4 +4,6 @@ __pycache__
 .pytest_cache
 .env
 tests
+.env.docker
+agentkey.pem
 

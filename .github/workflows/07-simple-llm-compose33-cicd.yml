@@ -58,7 +58,11 @@ jobs:
 
       - name: Validate backend compose
         working-directory: 07_multi-agent-service-ops/00_runtime-and-deployment/01_simple-multi-llm-compose33/backend
-        run: docker compose -f compose.yml config --quiet
+        # .env.docker holds real secrets and is gitignored, so the runner never has it.
+        # docker compose only needs the file to exist; real values come from the env: block below.
+        run: |
+          touch .env.docker
+          docker compose -f compose.yml config --quiet
         env:
           BACKEND_IMAGE: ${{ env.BACKEND_IMAGE }}
           DATABASE_URL: postgresql://agent_user:agent_pwd@127.0.0.1:5433/agent_db
@@ -66,7 +70,9 @@ jobs:
 
       - name: Validate frontend compose
         working-directory: 07_multi-agent-service-ops/00_runtime-and-deployment/01_simple-multi-llm-compose33/frontend
-        run: docker compose -f compose.yml config --quiet
+        run: |
+          touch .env.docker
+          docker compose -f compose.yml config --quiet
         env:
           FRONTEND_IMAGE: ${{ env.FRONTEND_IMAGE }}
           BACKEND_URL: http://127.0.0.1:8000

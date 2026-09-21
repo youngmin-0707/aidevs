@@ -96,6 +96,16 @@ jobs:
           printf '%s\n' "${{ secrets.AWS_SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
+      - name: Diagnose SSH key and connection
+        run: |
+          echo "--- key line count ---"
+          wc -l ~/.ssh/deploy_key
+          echo "--- key parses as a valid private key? ---"
+          ssh-keygen -y -f ~/.ssh/deploy_key -P "" > /tmp/derived_pub.txt && echo "OK: key parsed, public key derived" || echo "FAILED: ssh-keygen could not parse the key"
+          echo "--- verbose connection attempt ---"
+          ssh -vvv -o UserKnownHostsFile=~/.ssh/known_hosts -o BatchMode=yes \
+            -i ~/.ssh/deploy_key ${{ secrets.AWS_USER }}@${{ secrets.AWS_HOST }} "echo remote-ok" || true
+
       - name: Sync backend compose file
         run: |
           ssh -i ~/.ssh/deploy_key -o UserKnownHostsFile=~/.ssh/known_hosts \

@@ -12,9 +12,9 @@ services:
   backend:
     build: ./backend
     environment:
-      WEATHER_MCP_URL: http://weather-mcp:8010/mcp
-      DATABASE_URL: postgresql://${POSTGRES_USER:-agent_user}:${POSTGRES_PASSWORD:-agent_pwd}@database:5432/${POSTGRES_DB:-agent_db}
-      REDIS_URL: redis://redis:6379/0
+      WEATHER_MCP_URL: ${WEATHER_MCP_URL:-http://weather-mcp:8010/mcp}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-agent_user}:${POSTGRES_PASSWORD:-agent_pwd}@database:5432/${POSTGRES_DB:-agent_db}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       WEATHER_CACHE_TTL_SECONDS: ${WEATHER_CACHE_TTL_SECONDS:-600}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4.1-mini}
@@ -33,8 +33,8 @@ services:
   frontend:
     build: ./frontend
     environment:
-      BACKEND_URL: http://backend:8000
-    ports: ["8501:8501"]
+      BACKEND_URL: ${BACKEND_URL:-http://backend:8000}
+    ports: ${FRONTEND_PORT:-8501}:8501
     networks: [weather-stateful]
     depends_on:
       backend:

@@ -33,3 +33,6 @@ temp/
 
 # Local instructor-only materials
 00_course-guide/04_instructor-guide/
+
+agentkey.pem
+

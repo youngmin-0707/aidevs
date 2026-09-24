@@ -1,0 +1,3 @@
+BACKEND_URL=http://backend:8000
+FRONTEND_IMAGE=tonesol/simple-frontend:1.0.0
+FRONTEND_PORT=8501

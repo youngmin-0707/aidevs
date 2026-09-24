@@ -1,0 +1,9 @@
+.git
+.venv
+__pycache__
+.pytest_cache
+.env
+tests
+.env.docker
+agentkey.pem
+agent2.pem

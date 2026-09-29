@@ -16,6 +16,21 @@
 from shared.travel_contracts import SupportRouteDecision
 
 
+BASIC_EXAMPLES = [
+    "배송이 언제 도착하나요?",
+    "주문을 환불하고 싶어요.",
+    "로그인이 되지 않아요.",
+    "도와주세요.",
+]
+
+PARAPHRASED_EXAMPLES = [
+    "주문한 물건이 아직 안 왔어요.",
+    "마음이 바뀌어 구매를 없던 일로 하고 싶어요.",
+    "암호가 기억나지 않아 계정에 들어갈 수 없어요.",
+    "서비스 이용에 도움이 필요해요.",
+]
+
+
 def rule_router_agent(message: str) -> SupportRouteDecision:
     routes = {
         "delivery_agent": ("배송", "택배", "도착"),
@@ -32,9 +47,14 @@ def rule_router_agent(message: str) -> SupportRouteDecision:
     )
 
 
-if __name__ == "__main__":
-    messages = ["배송이 언제 도착하나요?", "주문을 환불하고 싶어요.", "로그인이 되지 않아요.", "도와주세요."]
+def print_examples(title: str, messages: list[str]) -> None:
+    print(f"\n=== {title} ===")
     for message in messages:
         decision = rule_router_agent(message)
         print(f"\n요청: {message}")
         print(decision.model_dump_json(indent=2))
+
+
+if __name__ == "__main__":
+    print_examples("직접 Keyword를 사용한 기본 예제", BASIC_EXAMPLES)
+    print_examples("같은 의도를 다르게 표현한 예제", PARAPHRASED_EXAMPLES)

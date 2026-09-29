@@ -13,6 +13,8 @@
     보장합니다. 정상 흐름은 Supervisor 3회와 Worker 2회로 최대 5회 호출합니다.
 """
 
+from typing import Any
+
 from shared.travel_contracts import SupervisorDecision
 from shared.travel_llm import provider_for_agent, run_learning_agent, run_with_metadata
 
@@ -24,7 +26,7 @@ WORKER_GOALS = {
 }
 
 
-def supervisor_agent(request: str, state: dict[str, object], expected_next: str) -> dict:
+def supervisor_agent(request: str, state: dict[str, Any], expected_next: str) -> dict:
     prompt = f"""당신은 supervisor_agent입니다. Worker 업무를 직접 수행하지 마세요.
 이번 실습의 허용 순서: analyst_agent → reviewer_agent → finish
 현재 State: {state}
@@ -34,15 +36,15 @@ SupervisorDecision 계약으로 반환하고 agent_id는 supervisor_agent로 작
     return run_with_metadata(provider_for_agent("supervisor_agent"), prompt, SupervisorDecision)
 
 
-def selected_worker_agent(agent_id: str, request: str, state: dict[str, object]) -> dict:
+def selected_worker_agent(agent_id: str, request: str, state: dict[str, Any]) -> dict:
     if agent_id not in WORKER_GOALS:
         raise ValueError(f"허용되지 않은 Worker입니다: {agent_id}")
     return run_learning_agent(agent_id, WORKER_GOALS[agent_id], request, state["outputs"])
 
 
-def supervisor_loop_agent(request: str, max_llm_calls: int = 5) -> dict[str, object]:
-    state: dict[str, object] = {"completed_agents": [], "outputs": {}}
-    trace: list[dict[str, object]] = []
+def supervisor_loop_agent(request: str, max_llm_calls: int = 5) -> dict[str, Any]:
+    state: dict[str, Any] = {"completed_agents": [], "outputs": {}}
+    trace: list[dict[str, Any]] = []
     llm_calls = 0
 
     while llm_calls < max_llm_calls:

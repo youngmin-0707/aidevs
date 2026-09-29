@@ -4,8 +4,9 @@ Supervisor와 Worker는 구조화된 LLM 결과와 이전 Agent Context만 사�
 YAML은 Agent 선언을 관리하고 Python은 실행 순서, 수정 횟수와 종료 조건을 통제합니다.
 """
 
+import argparse
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 import yaml
 from pydantic import BaseModel, Field, model_validator
@@ -14,6 +15,11 @@ from shared.travel_llm import run_with_metadata
 
 
 CONFIG_FILE = Path(__file__).resolve().parent / "my_orchestration.yaml"
+DEFAULT_REQUEST = (
+    "멀티 에이전트 시스템에서 Router와 Supervisor의 차이를 초보 개발자에게 "
+    "설명하는 교육용 블로그 글을 작성해 주세요."
+)
+Scenario = Literal["auto", "first-pass", "revision"]
 
 
 class ContentSupervisorDecision(BaseModel):
@@ -126,7 +132,7 @@ def load_agent_definitions() -> tuple[dict[str, str], dict[str, dict[str, str]]]
     return supervisor, workers
 
 
-def expected_next_action(state: dict[str, object]) -> str | None:
+def expected_next_action(state: dict[str, Any], scenario: Scenario = "auto") -> str | None:
     outputs = state["outputs"]
     if "planner_agent" not in outputs:
         return "planner_agent"
@@ -136,7 +142,7 @@ def expected_next_action(state: dict[str, object]) -> str | None:
         return "reviewer_agent"
 
     first_review = outputs["review_1"]
-    if first_review["passed"]:
+    if scenario == "first-pass" or (scenario == "auto" and first_review["passed"]):
         return "finish"
     if "reviser_agent" not in outputs:
         return "reviser_agent"
@@ -147,17 +153,23 @@ def expected_next_action(state: dict[str, object]) -> str | None:
     return "finish" if second_review["passed"] else None
 
 
-def context_for_worker(agent_id: str, outputs: dict[str, object]) -> dict[str, object]:
+def context_for_worker(agent_id: str, outputs: dict[str, Any]) -> dict[str, Any]:
     if agent_id == "planner_agent":
         return {}
     if agent_id == "writer_agent":
         return {"plan": outputs["planner_agent"]}
     if agent_id == "reviser_agent":
-        return {
+        context: dict[str, Any] = {
             "plan": outputs["planner_agent"],
             "draft": outputs["writer_agent"],
             "review": outputs["review_1"],
         }
+        if outputs["review_1"]["passed"]:
+            context["revision_request"] = (
+                "연습 시나리오: 첫 검토는 통과했습니다. 검토 결과를 바꾸지 말고 "
+                "설명이나 예시를 한 번 더 다듬어 주세요."
+            )
+        return context
     if agent_id == "reviewer_agent" and "reviser_agent" in outputs:
         return {
             "plan": outputs["planner_agent"],
@@ -174,7 +186,7 @@ def context_for_worker(agent_id: str, outputs: dict[str, object]) -> dict[str, o
 
 def supervisor_agent(
     request: str,
-    state: dict[str, object],
+    state: dict[str, Any],
     expected_next: str,
     config: dict[str, str],
 ) -> dict:
@@ -194,7 +206,7 @@ def selected_worker_agent(
     agent_id: str,
     request: str,
     instruction: str,
-    outputs: dict[str, object],
+    outputs: dict[str, Any],
     workers: dict[str, dict[str, str]],
 ) -> dict:
     if agent_id not in workers:
@@ -215,7 +227,7 @@ Supervisor 지시: {instruction}
     return run_with_metadata(worker["provider"], prompt, schema)
 
 
-def trace_event(step: int, actor: str, response: dict) -> dict[str, object]:
+def trace_event(step: int, actor: str, response: dict) -> dict[str, Any]:
     return {
         "step": step,
         "actor": actor,
@@ -230,9 +242,9 @@ def trace_event(step: int, actor: str, response: dict) -> dict[str, object]:
 def orchestration_result(
     status: str,
     reason: str,
-    state: dict[str, object],
-    trace: list[dict[str, object]],
-) -> dict[str, object]:
+    state: dict[str, Any],
+    trace: list[dict[str, Any]],
+) -> dict[str, Any]:
     final_content = None
     if status == "completed":
         outputs = state["outputs"]
@@ -246,22 +258,33 @@ def orchestration_result(
     }
 
 
-def content_team_agent(request: str, max_llm_calls: int = 11) -> dict[str, object]:
+def content_team_agent(
+    request: str,
+    max_llm_calls: int = 11,
+    scenario: Scenario = "auto",
+) -> dict[str, Any]:
+    if scenario not in ("auto", "first-pass", "revision"):
+        raise ValueError(f"알 수 없는 실행 시나리오입니다: {scenario}")
     supervisor, workers = load_agent_definitions()
-    state: dict[str, object] = {
+    state: dict[str, Any] = {
+        "scenario": scenario,
         "completed_agents": [],
         "outputs": {},
         "revision_count": 0,
+        "revision_reason": None,
     }
-    trace: list[dict[str, object]] = []
+    trace: list[dict[str, Any]] = []
 
     while len(trace) < max_llm_calls:
-        expected_next = expected_next_action(state)
+        expected_next = expected_next_action(state, scenario)
         if expected_next is None:
             return orchestration_result("failed", "review_rejected", state, trace)
 
         decision = supervisor_agent(request, state, expected_next, supervisor)
-        trace.append(trace_event(len(trace) + 1, "supervisor_agent", decision))
+        event = trace_event(len(trace) + 1, "supervisor_agent", decision)
+        if expected_next == "reviser_agent":
+            event["route_reason"] = state["revision_reason"]
+        trace.append(event)
         if decision["error"]:
             return orchestration_result("failed", "supervisor_failed", state, trace)
         if decision["result"]["agent_id"] != "supervisor_agent":
@@ -271,6 +294,9 @@ def content_team_agent(request: str, max_llm_calls: int = 11) -> dict[str, objec
         if selected != expected_next:
             return orchestration_result("blocked", "invalid_transition", state, trace)
         if selected == "finish":
+            latest_review = state["outputs"].get("review_2", state["outputs"].get("review_1"))
+            if not latest_review["passed"]:
+                return orchestration_result("failed", "review_rejected", state, trace)
             return orchestration_result("completed", "content_approved", state, trace)
 
         completed_agents = state["completed_agents"]
@@ -297,6 +323,11 @@ def content_team_agent(request: str, max_llm_calls: int = 11) -> dict[str, objec
         if selected == "reviewer_agent":
             review_number = completed_agents.count("reviewer_agent")
             state["outputs"][f"review_{review_number}"] = worker["result"]
+            if review_number == 1 and (scenario == "revision" or not worker["result"]["passed"]):
+                state["revision_reason"] = (
+                    "first_review_failed" if not worker["result"]["passed"]
+                    else "scenario_requested"
+                )
         else:
             state["outputs"][selected] = worker["result"]
             if selected == "reviser_agent":
@@ -305,7 +336,7 @@ def content_team_agent(request: str, max_llm_calls: int = 11) -> dict[str, objec
     return orchestration_result("failed", "max_llm_calls", state, trace)
 
 
-def print_final_content(final_content: dict[str, object] | None) -> None:
+def print_final_content(final_content: dict[str, Any] | None) -> None:
     print("\n=== 최종 콘텐츠 ===")
     if final_content is None:
         print("승인된 최종 콘텐츠가 없습니다.")
@@ -326,7 +357,7 @@ def print_final_content(final_content: dict[str, object] | None) -> None:
                 print(f"- {value}")
 
 
-def print_trace(trace: list[dict[str, object]]) -> None:
+def print_trace(trace: list[dict[str, Any]]) -> None:
     print("\n=== 실행 Trace ===")
     for event in trace:
         print(f"\n[{event['step']:02d}] {event['actor']}")
@@ -342,6 +373,8 @@ def print_trace(trace: list[dict[str, object]]) -> None:
         if event["actor"] == "supervisor_agent":
             print(f"  Decision : {result['next_agent']}")
             print(f"  Reason   : {result['reason']}")
+            if event.get("route_reason"):
+                print(f"  Route    : {event['route_reason']}")
         elif event["actor"] == "reviewer_agent":
             print(f"  Passed   : {result['passed']}")
             print(f"  Feedback : {result['feedback']}")
@@ -351,17 +384,39 @@ def print_trace(trace: list[dict[str, object]]) -> None:
             print(f"  Output   : {result['title']}")
 
 
-def print_orchestration_result(result: dict[str, object]) -> None:
+def print_orchestration_result(result: dict[str, Any]) -> None:
     print("=== 실행 결과 ===")
+    print(f"시나리오  : {result['state']['scenario']}")
     print(f"상태      : {result['status']}")
     print(f"종료 이유 : {result['reason']}")
+    if result["state"]["revision_reason"]:
+        print(f"수정 사유 : {result['state']['revision_reason']}")
     print_final_content(result["final_content"])
     print_trace(result["trace"])
 
 
-if __name__ == "__main__":
-    result = content_team_agent(
-        "멀티 에이전트 시스템에서 Router와 Supervisor의 차이를 초보 개발자에게 "
-        "설명하는 교육용 블로그 글을 작성해 주세요."
+def main(argv: list[str] | None = None) -> None:
+    parser = argparse.ArgumentParser(description="콘텐츠 제작 Supervisor 예제")
+    parser.add_argument(
+        "--scenario", choices=("auto", "first-pass", "revision", "alternate"),
+        default="alternate", help="실제 검토 결과 또는 연습용 실행 흐름 (기본값: alternate)",
     )
-    print_orchestration_result(result)
+    parser.add_argument("--runs", type=int, default=2, help="alternate 시나리오의 실행 횟수")
+    args = parser.parse_args(argv)
+    if args.scenario != "alternate" and args.runs != 2:
+        parser.error("--runs는 --scenario alternate에서만 사용합니다.")
+    if args.runs < 1:
+        parser.error("--runs는 1 이상이어야 합니다.")
+    scenarios = (
+        ("first-pass", "revision") * ((args.runs + 1) // 2)
+        if args.scenario == "alternate" else (args.scenario,)
+    )
+    selected_scenarios = scenarios[:args.runs] if args.scenario == "alternate" else scenarios
+    for run_number, scenario in enumerate(selected_scenarios, 1):
+        if args.scenario == "alternate":
+            print(f"\n=== 실행 {run_number}/{args.runs} ===")
+        print_orchestration_result(content_team_agent(DEFAULT_REQUEST, scenario=scenario))
+
+
+if __name__ == "__main__":
+    main()

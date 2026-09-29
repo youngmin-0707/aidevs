@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "07 Supervisor and Routing: current file",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "python": "${workspaceFolder}/07_multi-agent-service-ops/.venv/bin/python",
+      "cwd": "${workspaceFolder}/07_multi-agent-service-ops/03_supervisor-and-routing",
+      "console": "integratedTerminal"
+    }
+  ]
+}

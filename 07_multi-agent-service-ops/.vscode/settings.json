@@ -1,0 +1,7 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/03_supervisor-and-routing"
+  ],
+  "python.analysis.typeCheckingMode": "basic"
+}

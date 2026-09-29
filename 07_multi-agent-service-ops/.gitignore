@@ -7,3 +7,5 @@ __pycache__/
 .env.docker
 agentkey.pem
 agent2.pem
+run_lab.sh
+launch.json

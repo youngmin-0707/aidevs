@@ -14,6 +14,8 @@
     Python이 통제합니다. 실제 네 LLM의 결과와 오류를 Trace에 보존합니다.
 """
 
+from typing import Any
+
 from shared.travel_contracts import LearningAgentResult, SupervisorDecision
 from shared.travel_llm import run_with_metadata
 from worker_registry import load_worker_registry
@@ -23,7 +25,7 @@ WORKER_PLAN = ["analyst_agent", "developer_agent", "reviewer_agent"]
 WORKERS = load_worker_registry()
 
 
-def supervisor_agent(request: str, state: dict[str, object], expected_next: str) -> dict:
+def supervisor_agent(request: str, state: dict[str, Any], expected_next: str) -> dict:
     prompt = f"""당신은 supervisor_agent입니다. 직접 분석·구현·검토하지 마세요.
 허용 순서: analyst_agent → developer_agent → reviewer_agent → finish
 현재 State: {state}
@@ -33,7 +35,7 @@ SupervisorDecision 계약으로 반환하고 agent_id는 supervisor_agent로 작
     return run_with_metadata("openai", prompt, SupervisorDecision)
 
 
-def selected_worker_agent(agent_id: str, request: str, outputs: dict[str, object]) -> dict:
+def selected_worker_agent(agent_id: str, request: str, outputs: dict[str, Any]) -> dict:
     if agent_id not in WORKERS:
         raise ValueError(f"허용되지 않은 Worker입니다: {agent_id}")
     worker = WORKERS[agent_id]
@@ -51,9 +53,9 @@ LearningAgentResult 계약으로 반환하고 agent_id는 반드시 {agent_id}�
     return result
 
 
-def multi_llm_team_agent(request: str, max_llm_calls: int = 7) -> dict[str, object]:
-    state: dict[str, object] = {"completed_agents": [], "outputs": {}}
-    trace: list[dict[str, object]] = []
+def multi_llm_team_agent(request: str, max_llm_calls: int = 7) -> dict[str, Any]:
+    state: dict[str, Any] = {"completed_agents": [], "outputs": {}}
+    trace: list[dict[str, Any]] = []
 
     while len(trace) < max_llm_calls:
         completed_agents = state["completed_agents"]

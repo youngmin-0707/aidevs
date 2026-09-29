@@ -10,7 +10,8 @@
 
 확인할 내용:
     Router 결과와 Worker 결과, Provider Metadata를 따로 출력합니다. 오류를 고정된 성공
-    결과로 바꾸지 않습니다. 정상 흐름에서는 실제 LLM을 2회 호출합니다.
+    결과로 바꾸지 않습니다. 네 요청은 Router만 비교하고 대표 요청 하나의 Worker만
+    실행하므로 정상 흐름에서는 실제 LLM을 최대 5회 호출합니다.
 """
 
 import json
@@ -24,6 +25,29 @@ WORKER_GOALS = {
     "refund_agent": "환불 가능 조건과 필요한 정보를 안내하고 결제를 직접 취소하지 않는다.",
     "technical_support_agent": "로그인과 앱 오류의 해결 순서를 안내한다.",
 }
+
+ROUTER_EXAMPLES = [
+    {
+        "label": "배송을 우회해서 표현한 요청",
+        "message": "주문한 물건이 아직 안 왔어요.",
+        "run_worker": True,
+    },
+    {
+        "label": "환불을 우회해서 표현한 요청",
+        "message": "마음이 바뀌어 구매를 없던 일로 하고 싶어요.",
+        "run_worker": False,
+    },
+    {
+        "label": "기술 문제를 우회해서 표현한 요청",
+        "message": "암호가 기억나지 않아 계정에 들어갈 수 없어요.",
+        "run_worker": False,
+    },
+    {
+        "label": "담당자를 정하기 어려운 요청",
+        "message": "서비스 이용에 도움이 필요해요.",
+        "run_worker": False,
+    },
+]
 
 
 def llm_router_agent(message: str) -> dict:
@@ -43,15 +67,22 @@ def selected_worker_agent(agent_id: str, message: str) -> dict:
 
 
 if __name__ == "__main__":
-    request = "ORDER-102 배송이 너무 늦어서 취소하고 싶습니다. 먼저 무엇을 확인해야 하나요?"
-    route = llm_router_agent(request)
-    print("=== Router 결정 ===")
-    print(json.dumps(route, ensure_ascii=False, indent=2))
-    if route["result"] is None:
-        print("Router 오류로 Worker를 실행하지 않습니다.")
-    elif route["result"]["selected_agent"] == "request_information":
-        print("추가로 필요한 정보:", route["result"]["missing_information"])
-    else:
-        worker = selected_worker_agent(route["result"]["selected_agent"], request)
-        print("\n=== 선택된 Worker 결과 ===")
-        print(json.dumps(worker, ensure_ascii=False, indent=2))
+    for example in ROUTER_EXAMPLES:
+        request = example["message"]
+        print(f"\n=== {example['label']} ===")
+        print("요청:", request)
+
+        route = llm_router_agent(request)
+        print("\n--- Router 결정 ---")
+        print(json.dumps(route, ensure_ascii=False, indent=2))
+
+        if route["result"] is None:
+            print("Router 오류로 Worker를 실행하지 않습니다.")
+        elif route["result"]["selected_agent"] == "request_information":
+            print("추가로 필요한 정보:", route["result"]["missing_information"])
+        elif example["run_worker"]:
+            worker = selected_worker_agent(route["result"]["selected_agent"], request)
+            print("\n--- 대표 요청에서 선택된 Worker 결과 ---")
+            print(json.dumps(worker, ensure_ascii=False, indent=2))
+        else:
+            print("비교 예제이므로 선택된 Worker는 실행하지 않습니다.")
